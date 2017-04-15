@@ -11,5 +11,5 @@
 
 [Data Dictionary] https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset
 
-[Unique ID Schema] The column “movie_title” is a primary key
+[Unique ID Schema] The column “movie_imdb_link” is a primary key
 ;
