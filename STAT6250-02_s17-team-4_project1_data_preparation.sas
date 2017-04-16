@@ -1,3 +1,4 @@
+
 *
 [Dataset Name] IMDB 5000 Movie Dataset
 
@@ -13,3 +14,24 @@
 
 [Unique ID Schema] The column “movie_imdb_link” is a primary key
 ;
+
+%let inputDatasetURL =
+https://github.com/stat6250/team-4_project1/blob/master/movie_metadata.xls?raw=true
+;
+
+filename tempfile TEMP;
+proc http
+     method="get"
+	 url="&inputDatasetURL."
+	 out=tempfile
+	 ;
+run;
+
+proc import
+     file=tempfile
+	 out=movie_data
+	 dbms=xls;
+run;
+filename tempfile clear;
+
+
