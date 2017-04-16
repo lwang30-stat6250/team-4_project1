@@ -43,7 +43,7 @@ filename tempfile clear;
 
 * check raw flights dataset for duplicates with respect to its composite key;
 proc sort nodupkey data=movie_data dupout=movie_data_dups out=_null_;
-	by director_name actor_2_name actor_1_name actor_3_name;
+	by movie_imdb_link;
 run;
 
 
