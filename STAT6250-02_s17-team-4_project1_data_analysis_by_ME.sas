@@ -29,11 +29,28 @@ Possible Follow-up Steps:
 Add a WHERE gross > 0 statement to PROC PRINT. This does not appear to be a
 ;
 
-* Still need to sort by highest mean gross;
-* Tried saving output using output out=gross_sumstat;
 proc means data=Movie_analytic_file maxdec = 2;
 	var gross;
 	class genre;
+	output out=gross_sumstat;
+run;
+
+proc sort data=gross_sumstat(where=(_STAT_="MEAN") out=gross_mean_sorted);
+    by descending gross;
+run;
+proc print noobs data=gross_mean_sorted(obs=20);
+    var genre gross;
+	label gross="mean gross";
+run;
+
+
+* Display the movies titles from with the top 4 genres;
+proc sort data=Movie_analytic_file out=sorted_by_gross;
+	by descending gross;
+run;
+proc print data=sorted_by_gross;
+	var genre movie_title gross;
+	where genre in ("Family", "Adventure", "Animation", "Action");
 run;
 
 *
@@ -65,9 +82,9 @@ proc format;
 	;
 
 * Can't order by gross Q4;
-* Using out=GrossQsByActor did not produce the desired table;
+* Using out=grossQ_by_actor did not produce the desired table;
 proc freq data=Movie_analytic_file order=freq; 
-	tables actor_1_name * gross
+	tables actor_1_name * gross / nopercent norow nocol;
 	format gross grossfmt.;
 run;
 
