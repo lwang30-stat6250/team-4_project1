@@ -61,7 +61,7 @@ moment. Does this payoff?
 
 Methodology:
 1) Use PROC MEAN on the gross variable to find the quartiles
-2) Use PROC FREQ to count gross by actor
+2) Use PROC FREQ to count gross quartiles by actor
 
 Limitations: The same actor can also be in the actor2 or actor3 field. This 
 analysis does not take that information into consideration.
@@ -101,4 +101,23 @@ Limitations: The budget data is not adjusted for inflation.
 
 Possible Follow-up Steps: The budget should be adjusted for inflation.
 ;
+proc means data=Movie_analytic_file maxdec = 2;
+	var budget;
+	class title_year;
+	output out=budget_sumstat
+		mean=AvgBudget;
+run;
 
+title "Average budget by Year";
+/* Options for regression line;
+* RL is a linear regression;
+* add  "/ regeqn" to plot statemnt;
+symbol1 
+	interpol=RL
+	value=circle
+	cv=blue
+	ci=darkred; */
+proc gplot data=budget_sumstat;                                                                                                                 
+   plot AvgBudget*title_year;                                                                             
+run;
+quit;
