@@ -10,21 +10,22 @@
 
 [Number of Observations] 5,043
 
-[Number of Features] 28
+[Number of Features] 29
 
 [Data Source] https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset/downloads/imdb-5000-movie-dataset.zip
 
-[Data Dictionary] https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset
+[Data Dictionary] https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset, "genre" field 
+	generated from first genre in the "genres" field and added
 
 [Unique ID Schema] The column “movie_imdb_link” is a primary key
 ;
 
 * setup environmental parameters;
 %let inputDatasetURL =
-https://github.com/stat6250/team-4_project1/blob/master/movie_metadata.xls?raw=true
+https://github.com/stat6250/team-4_project1/blob/master/movie_metadata_edit.xls?raw=true
 ;
 
-* load raw Flights dataset over the wire;
+* load raw movie dataset over the wire;
 filename tempfile TEMP;
 proc http
 	method="get"
@@ -38,16 +39,19 @@ proc import
 	out=movie_data
 	dbms=xls;
 run;
+
 filename tempfile clear;
 
 
-* check raw flights dataset for duplicates with respect to its composite key;
+* check movie dataset for duplicates with respect to its unique key;
+* adding the title_year did not change the number of duplicates, 
+* 	those are true duplicates;
 proc sort nodupkey data=movie_data dupout=movie_data_dups out=_null_;
 	by movie_imdb_link;
 run;
 
 
-* build analytic dataset from Homicide dataset with the least number of columns and
+* build analytic dataset from movie dataset with the least number of columns and
 minimal cleaning/transformation needed to address research questions in
 corresponding data-analysis files;
 
@@ -58,7 +62,7 @@ data movie_analytic_file;
 		country
 		title_year
 		duration
-		genres
+		genre
 		budget
 		gross
 		imdb_score
@@ -72,7 +76,7 @@ data movie_analytic_file;
 		country
 		title_year
 		duration
-		genres
+		genre
 		budget
 		gross
 		imdb_score
