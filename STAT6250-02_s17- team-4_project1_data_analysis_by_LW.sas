@@ -108,6 +108,54 @@ run;
 
 
 *
-Research Question: 
+Research Question:Is a high "imdb_score" associated with more "gross" income of a movie ?
+
+Rationale:This helps assess if a movie's ratings online matches with its popularity in the theater.
+
+Methodology:Use Proc Means to compute five-number summary of imdb_score, and use Proc Format to bin its values
+
+			by quartiles, which will be further stored into a new dataset. Use Proc GLM to perform a one-way ANOVA
+
+			model for the variables "gross" and reformatted "imdb_score".
+
+Limitations:The assumptions for one-way ANOVA model may not be valid due to a large variety in the data source. 
+
+Possible follow-up steps:Check the independency,normality, and homogeneity of variance assumptions for the one-way
+
+		ANOVA model. If the assumptions fail or the R-square value is small, other inferential models should be considered to conduct the test.
 ;
 
+proc means min q1 median q3 max data=movie_analytic_file;
+	var imdb_score;
+run;
+
+proc format;
+	value imdb_score_bins
+		low-<5.8="Q1 imdb_score"
+		5.8-<6.6="Q2 imdb_score"
+		6.6-<7.2="Q3 imdb_score"
+		7.2-high="Q4 imdb_score"
+		;
+run;
+
+data new_imdb_score_data;
+	set movie_analytic_file;
+		keep movie_imdb_link movie_title imdb_score gross;
+		format imdb_score imdb_score_bins.;
+run;
+ 
+proc glm data=new_imdb_score_data;
+	class imdb_score;
+	model gross=imdb_score;
+	means imdb_score/lsd;
+	means imdb_score/hovtest=levene;
+	output out=resids r=res;
+run;
+
+proc univariate normal plot;
+	var res;
+run;
+
+*
+Conclusion:ANOVA is not the appropriate model for this analysis. Consider other models instead.
+;
