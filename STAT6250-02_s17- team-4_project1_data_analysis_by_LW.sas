@@ -26,22 +26,19 @@ X "cd ""%substr(%sysget(SAS_EXECFILEPATH),1,%eval(%length(%sysget(SAS_EXECFILEPA
 *
 Research Question:Does US movie have a higher imdb_score than other country's movie ?
 
-Rationale:It indicates how the US-made movies are different from the other countries' based on the audience ratings.
+Rationale:This indicates how the US-made movies are different from the other countries' based on the audience ratings.
 
-Methodology:Use Proc Format to categorize the variable "country" into two groups, "USA" and "Not_USA". 
-			
-			Use a data procedure to associate the new format with the variable "country", and store into a new dataset.
-
-			Compute five-number summaries by the reformatted variable consisting of two country groups.
+Methodology:Use Proc Format to categorize the variable "country" into two groups, "USA" and "Not_USA". Use a data 
+procedure to associate the new format with the variable "country", and store into a new dataset. Compute five-number 
+summaries by the reformatted variable consisting of two country groups.
 
 Limitations:This methodology does not count missing data. In addition, the five-number summaries may not be able to
-
-			reflect all the characteristics of the imdb_score data.
+reflect all the characteristics of the imdb_score data.
 
 Possible follow-up steps:Deal with the missing data by a further cleaning step.Perform one-way ANOVA to test the difference
-
-			between two country groups on the imdb_score.
+between two country groups on the imdb_score.
 ;
+
 proc format;
 	value $country_bins
 	"USA"="USA"
@@ -64,11 +61,10 @@ run;
 *
 Research Question:Can "budget" be used to predict the "gross" income of a movie ?
 
-Rationale: This helps determine if the movies that make more money are associated with a higher investment for manufacturing.
+Rationale:This helps determine if the movies that make more money are associated with a higher investment for manufacturing.
 
-Methodology: Use Proc Means to obtain the five-number summary of both "budget" and "gross".
-
-			Then use quartiles to bin values for each variable, and use Proc Freq to crosstabulate bins.
+Methodology:Use Proc Means to obtain the five-number summary of both "budget" and "gross". Then use quartiles to bin values 
+for each variable, and use Proc Freq to crosstabulate bins.
 
 Limitations:This method only uses descriptive statistics to examine the relationship between two numeric variables. 
 
@@ -113,16 +109,14 @@ Research Question:Is a high "imdb_score" associated with more "gross" income of 
 Rationale:This helps assess if a movie's ratings online matches with its popularity in the theater.
 
 Methodology:Use Proc Means to compute five-number summary of imdb_score, and use Proc Format to bin its values
-
-			by quartiles, which will be further stored into a new dataset. Use Proc GLM to perform a one-way ANOVA
-
-			model for the variables "gross" and reformatted "imdb_score".
+by quartiles, which will be further stored into a new dataset. Use Proc GLM to perform a one-way ANOVA model for 
+the variables "gross" and reformatted "imdb_score".
 
 Limitations:The assumptions for one-way ANOVA model may not be valid due to a large variety in the data source. 
 
-Possible follow-up steps:Check the independency,normality, and homogeneity of variance assumptions for the one-way
-
-		ANOVA model. If the assumptions fail or the R-square value is small, other inferential models should be considered to conduct the test.
+Possible follow-up steps:Check the independency,normality,and homogeneity of variance assumptions for the one-way
+ANOVA model. If the assumptions fail or the R-square value is small, other inferential models should be considered 
+to conduct the test.
 ;
 
 proc means min q1 median q3 max data=movie_analytic_file;
@@ -155,7 +149,6 @@ run;
 proc univariate normal plot;
 	var res;
 run;
-
 *
 Conclusion:ANOVA is not the appropriate model for this analysis. Consider other models instead.
 ;
