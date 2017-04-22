@@ -21,12 +21,11 @@ Does the data support this?
 
 Methodology: Use PROC MEANS with CLASS genre
 
-Limitations: 
-The dataset is known to have missing values for the gross that are set to 0. 
-It's not really possible for a movie to have $0 of gross.
+Limitations: This is a fairly small dataset. The "family" genre only 
+has 3 movies with values for the gross.
 
-Possible Follow-up Steps:
-Add a WHERE gross > 0 statement to PROC PRINT. This does not appear to be a
+Possible Follow-up Steps: Limit the output of PROC MEANS to genres where
+n > 5.
 ;
 
 proc means data=Movie_analytic_file maxdec = 2;
@@ -35,7 +34,7 @@ proc means data=Movie_analytic_file maxdec = 2;
 	output out=gross_sumstat;
 run;
 
-proc sort data=gross_sumstat(where=(_STAT_="MEAN") out=gross_mean_sorted);
+proc sort data=gross_sumstat(where=(_STAT_="MEAN")) out=gross_mean_sorted;
     by descending gross;
 run;
 proc print noobs data=gross_mean_sorted(obs=20);
@@ -63,10 +62,11 @@ Methodology:
 1) Use PROC MEAN on the gross variable to find the quartiles
 2) Use PROC FREQ to count gross quartiles by actor
 
-Limitations: The same actor can also be in the actor2 or actor3 field. This 
-analysis does not take that information into consideration.
+Limitations: The same actor can also be in the actor_2_name or actor_3_name field.
+This analysis does not take that information into consideration.
 
-Possible Follow-up Steps: 
+Possible Follow-up Steps: Do the same analysis for actor_2_name and actor_3_name 
+then merge the results.
 ;
 
 proc means data=Movie_analytic_file q1 median q3;
@@ -80,19 +80,25 @@ proc format;
 		25517500.00 - <62318875.00	= "Gross Q3"
 		62318875.00	- high			= "Gross Q4"
 	;
-
-* Can't order by gross Q4;
-* Using out=grossQ_by_actor did not produce the desired table;
 proc freq data=Movie_analytic_file order=freq; 
-	tables actor_1_name * gross / nopercent norow nocol;
+	tables actor_1_name * gross / nopercent norow nocol out=grossQ_by_actor;
 	format gross grossfmt.;
 run;
+
+* Sort by Q4 frequency (i.e. the number of movies where the gross was 
+in the 4th quartile);
+proc sort data=grossQ_by_actor(where=(gross>=62318875)) out=grossQ_by_actor_sorted;
+    by descending count;
+run;
+proc print noobs data=grossQ_by_actor_sorted;
+run;
+
 
 *
 Research Question: Are movies getting more expensive to make 
 (i.e. Budget over time)?
 
-Rationale: 
+Rationale: To help movie studios budget future movies.
 
 Methodology: Use PROC MEANS to get the mean with VAR budget CLASS title_year. 
 Then chart the results.
@@ -121,3 +127,7 @@ proc gplot data=budget_sumstat;
    plot AvgBudget*title_year;                                                                             
 run;
 quit;
+*
+Result: The budget seems to be increasing exponentially over time. The linear 
+regression line did not appear to be a good fit and was removed from the plot.
+;
