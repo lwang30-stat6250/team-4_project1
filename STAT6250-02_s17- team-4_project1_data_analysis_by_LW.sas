@@ -22,6 +22,7 @@ X "cd ""%substr(%sysget(SAS_EXECFILEPATH),1,%eval(%length(%sysget(SAS_EXECFILEPA
 %include '.\STAT6250-02_s17-team-4_project1_data_preparation.sas';
 
 
+
 *
 Research Question:Does US movie have a higher imdb_score than other country's movie ?
 
@@ -61,12 +62,50 @@ run;
 
 
 *
-Research Question: What is the average income of a movie ? Does the income follow a normal distribution ?
+Research Question:Can "budget" be used to predict the "gross" income of a movie ?
 
-Rationale: This provides a basic understanding of how much the filmmakers can earn.
+Rationale: This helps determine if the movies that make more money are associated with a higher investment for manufacturing.
 
-Methodology: Compute five-number summary for the variable "gross" and test for its nomality.
+Methodology: Use Proc Means to obtain the five-number summary of both "budget" and "gross".
+
+			Then use quartiles to bin values for each variable, and use Proc Freq to crosstabulate bins.
+
+Limitations:This method only uses descriptive statistics to examine the relationship between two numeric variables. 
+
+Possible follow-up steps:A better approach would be to apply an appropriate regression model to study their relationship.
 ;
+
+proc means min q1 median q3 max data=movie_analytic_file;
+	var
+		budget
+		gross
+	;
+run;
+
+proc format;
+	value budget_bins
+		low-6000000="Q1 budget"
+		6000001-20000000="Q2 budget"
+		20000001-45000000="Q3 budget"
+		45000001-high="Q4 budget"
+	;
+	value gross_bins
+		low-5333658="Q1 gross"
+		5333659-25517500="Q2 gross"
+		25517501-62318875="Q3 gross"
+		62318876-high="Q4 gross"
+	;
+run;
+
+proc freq data=movie_analytic_file;
+	table budget*gross/missing norow nocol nopercent;
+	format 
+		budget budget_bins.
+		gross gross_bins.
+	;
+run;
+
+
 
 *
 Research Question: 
