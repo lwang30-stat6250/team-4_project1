@@ -14,10 +14,10 @@
 
 [Data Source] https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset/downloads/imdb-5000-movie-dataset.zip
 
-[Data Dictionary] https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset, "genre" field 
-	generated from first genre in the "genres" field and added
+[Data Dictionary] https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset, 
+"genre" field generated from first genre in the "genres" field and added
 
-[Unique ID Schema] The column ìmovie_imdb_linkî is a primary key
+[Unique ID Schema] The column ‚Äúmovie_imdb_link‚Äù is a primary key
 ;
 
 * setup environmental parameters;
