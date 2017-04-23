@@ -80,6 +80,7 @@ proc format;
 		25517500.00 - <62318875.00	= "Gross Q3"
 		62318875.00	- high			= "Gross Q4"
 	;
+run;
 proc freq data=Movie_analytic_file order=freq; 
 	tables actor_1_name * gross / nopercent norow nocol out=grossQ_by_actor;
 	format gross grossfmt.;
