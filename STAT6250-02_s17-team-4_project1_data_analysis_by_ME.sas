@@ -19,17 +19,38 @@ Research Question: Do some genres do better than others in theaters
 Rationale: Action movies are thought to be the highest grossing movies. 
 Does the data support this?
 
-Methodology: First sort the data by genre to a temporary file. Then use the 
-PROC PRINT statement with SUM gross BY genre.
+Methodology: Use PROC MEANS with CLASS genre
 
-Limitations: 1) The genre field has multiple values separated by ‘|’. Sorting 
-will only be by the first value. 2) The dataset is known to have missing values 
-for the gross that are set to 0. It’s not really possible for a movie to have 
-$0 of gross.
+Limitations: This is a fairly small dataset. The "family" genre only 
+has 3 movies with values for the gross.
 
-Possible Follow-up Steps: 1) The data could be pre-processed to split the genre 
-field into dummy fields.  2) Add a WHERE gross > 0 statement to PROC PRINT
+Possible Follow-up Steps: Limit the output of PROC MEANS to genres where
+n > 5.
 ;
+
+proc means data=Movie_analytic_file maxdec = 2;
+	var gross;
+	class genre;
+	output out=gross_sumstat;
+run;
+
+proc sort data=gross_sumstat(where=(_STAT_="MEAN")) out=gross_mean_sorted;
+    by descending gross;
+run;
+proc print noobs data=gross_mean_sorted(obs=20);
+    var genre gross;
+	label gross="mean gross";
+run;
+
+
+* Display the movies titles from with the top 4 genres;
+proc sort data=Movie_analytic_file out=sorted_by_gross;
+	by descending gross;
+run;
+proc print data=sorted_by_gross;
+	var genre movie_title gross;
+	where genre in ("Family", "Adventure", "Animation", "Action");
+run;
 
 *
 Research Question: Are there actors whose moves consistently do well?
@@ -37,20 +58,48 @@ Research Question: Are there actors whose moves consistently do well?
 Rationale: Hollywood tends to reuse actors who are considered "hot" at the 
 moment. Does this payoff?
 
-Methodology: Use PROC MEANS with VAR gross and CLASS actor1 to get the mean, 
-standard deviation, minimum, and maximum. Sort by the mean to get the top 10.
+Methodology:
+1) Use PROC MEAN on the gross variable to find the quartiles
+2) Use PROC FREQ to count gross quartiles by actor
 
-Limitations: The same actor can also be in the actor2 or actor3 field. This 
-analysis does not take that information into consideration.
+Limitations: The same actor can also be in the actor_2_name or actor_3_name field.
+This analysis does not take that information into consideration.
 
-Possible Follow-up Steps: 
+Possible Follow-up Steps: Do the same analysis for actor_2_name and actor_3_name 
+then merge the results.
 ;
+
+proc means data=Movie_analytic_file q1 median q3;
+	var gross;
+run; 
+
+proc format;
+	value grossfmt  
+		low - <5333658.00			= "Gross Q1"
+		5333658.00 - <25517500.00	= "Gross Q2"
+		25517500.00 - <62318875.00	= "Gross Q3"
+		62318875.00	- high			= "Gross Q4"
+	;
+run;
+proc freq data=Movie_analytic_file order=freq; 
+	tables actor_1_name * gross / nopercent norow nocol out=grossQ_by_actor;
+	format gross grossfmt.;
+run;
+
+* Sort by Q4 frequency (i.e. the number of movies where the gross was 
+in the 4th quartile);
+proc sort data=grossQ_by_actor(where=(gross>=62318875)) out=grossQ_by_actor_sorted;
+    by descending count;
+run;
+proc print noobs data=grossQ_by_actor_sorted;
+run;
+
 
 *
 Research Question: Are movies getting more expensive to make 
 (i.e. Budget over time)?
 
-Rationale: 
+Rationale: To help movie studios budget future movies.
 
 Methodology: Use PROC MEANS to get the mean with VAR budget CLASS title_year. 
 Then chart the results.
@@ -59,4 +108,27 @@ Limitations: The budget data is not adjusted for inflation.
 
 Possible Follow-up Steps: The budget should be adjusted for inflation.
 ;
+proc means data=Movie_analytic_file maxdec = 2;
+	var budget;
+	class title_year;
+	output out=budget_sumstat
+		mean=AvgBudget;
+run;
 
+title "Average budget by Year";
+/* Options for regression line;
+* RL is a linear regression;
+* add  "/ regeqn" to plot statemnt;
+symbol1 
+	interpol=RL
+	value=circle
+	cv=blue
+	ci=darkred; */
+proc gplot data=budget_sumstat;                                                                                                                 
+   plot AvgBudget*title_year;                                                                             
+run;
+quit;
+*
+Result: The budget seems to be increasing exponentially over time. The linear 
+regression line did not appear to be a good fit and was removed from the plot.
+;
