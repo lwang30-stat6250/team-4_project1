@@ -51,8 +51,8 @@ proc sort nodupkey data=movie_data dupout=movie_data_dups out=_null_;
 run;
 
 
-* build analytic dataset from movie dataset with the least number of columns and
-minimal cleaning/transformation needed to address research questions in
+* build analytic dataset from movie dataset with the least number of columns 
+and minimal cleaning/transformation needed to address research questions in
 corresponding data-analysis files;
 
 data movie_analytic_file;
