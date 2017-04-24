@@ -86,6 +86,4 @@ data movie_analytic_file;
 	;
 	set movie_data;
 run;
-
-
 		
