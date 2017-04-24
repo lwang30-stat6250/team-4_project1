@@ -123,8 +123,8 @@ its popularity in the theater.
 
 Methodology:Use Proc Means to compute five-number summary of imdb_score, 
 and use Proc Format to bin its values by quartiles, which will be further 
-stored into a new dataset. Use Proc GLM to perform a one-way ANOVA model for 
-the variables "gross" and reformatted "imdb_score".
+stored into a new dataset. Use Proc GLM to perform a one-way ANOVA model 
+for the variables "gross" and reformatted "imdb_score".
 
 Limitations:The assumptions for one-way ANOVA model may not be valid due 
 to a large variety in the data source. 
