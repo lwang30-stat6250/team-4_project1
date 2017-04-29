@@ -24,13 +24,23 @@ X "cd ""%substr(%sysget(SAS_EXECFILEPATH),1,%eval(%length(%sysget(SAS_EXECFILEPA
 
 
 
+title1
+'Research Question:Does US movies have a higher imdb_score than other country movies ?'
+;
+
+title2
+'Rationale:This indicates how the US-made movies are different from the other country movies based on the audience ratings.'
+;
+
+footnote1
+'Based on the above output, we can see that all the five numbers (min,q1,median,q3,max) of non-US-made movies are higher than that of US-made movies.'
+;
+
+footnote2
+'In a conclusion, the other country movies actually have a higher imdb_score than US movies, indicating a high quality of film production all over the world.'
+;
+
 *
-Research Question:Does US movie have a higher imdb_score than other country's 
-movie ?
-
-Rationale:This indicates how the US-made movies are different from the other 
-countries' based on the audience ratings.
-
 Methodology:Use Proc Format to categorize the variable "country" into two 
 groups, "USA" and "Not_USA". Use a data procedure to associate the new format 
 with the variable "country", and store into a new dataset. Compute five-number 
@@ -45,32 +55,31 @@ step.Perform one-way ANOVA to test the difference between two country groups
 on the imdb_score.
 ;
 
-proc format;
-	value $country_bins
-	"USA"="USA"
-	other="Not_USA"
-	;	
-run;
-
-data new_country_data;
-	set movie_analytic_file;
-	format country country_bins.;
-run;
-
 proc means min q1 median q3 max data=new_country_data;
 	class country;
 	var imdb_score;
 run;
+title;
+footnote;
 
 
+title1
+'Research Question:Can "budget" be used to predict the "gross" income of a movie ?'
+;
+
+title2
+'Rationale:This helps determine if the movies that make more money are associated with a higher investment for manufacturing.'
+;
+
+footnote1
+'Based on the output, we see that at the Q1 budget level, the Q1 quartile of gross has the largest frequency. At the Q2 budget level, the Q2 quartile of gross has the largest frequency. At the Q3 budget level, the Q3 quartile of gross has the largest frequency. At the Q4 budget level, the Q4 quartile of gross has the largest frequency.'
+;
+
+footnote2
+'Although the exact number of gross income can not be determined by budget, we can still observe a trend that as the budget level goes up, the gross will increase, and there should be a positive relationship between the two variables.'
+;
 
 *
-Research Question:Can "budget" be used to predict the "gross" income of 
-a movie ?
-
-Rationale:This helps determine if the movies that make more money are 
-associated with a higher investment for manufacturing.
-
 Methodology:Use Proc Means to obtain the five-number summary of both 
 "budget" and "gross". Then use quartiles to bin values for each variable, 
 and use Proc Freq to crosstabulate bins.
@@ -82,28 +91,6 @@ Possible follow-up steps:A better approach would be to apply an
 appropriate regression model to study their relationship.
 ;
 
-proc means min q1 median q3 max data=movie_analytic_file;
-	var
-		budget
-		gross
-	;
-run;
-
-proc format;
-	value budget_bins
-		low-6000000="Q1 budget"
-		6000001-20000000="Q2 budget"
-		20000001-45000000="Q3 budget"
-		45000001-high="Q4 budget"
-	;
-	value gross_bins
-		low-5333658="Q1 gross"
-		5333659-25517500="Q2 gross"
-		25517501-62318875="Q3 gross"
-		62318876-high="Q4 gross"
-	;
-run;
-
 proc freq data=movie_analytic_file;
 	table budget*gross/missing norow nocol nopercent;
 	format 
@@ -111,16 +98,31 @@ proc freq data=movie_analytic_file;
 		gross gross_bins.
 	;
 run;
+title;
+footnote;
 
 
+title1
+'Research Question:Is a high "imdb_score" associated with more "gross" income of a movie ?'
+;
+
+title2
+'Rationale:This helps assess if the online rating of a movie matches with its popularity in the theater.'
+;
+
+footnote1
+'Based on the output, we see from the side-by-side boxplot that Q4 imdb_score group is apparently associated with a higher gross income than Q1 imdb_score group, but each group has many outliers, indicating the response values are not normally distributed.'
+;
+
+footnote2
+'From the ANOVA table, the R-square value is 0.032875, meaning that only 3.3% of the data can be explained by the model.'
+;
+
+footnote3
+'From the qqplot, the residuals do not follow a normal distribution at all, and our assumption for performing one-way ANOVA fails. Thus, we should consider other models or a transformation of the data instead.'
+;
 
 *
-Research Question:Is a high "imdb_score" associated with more "gross" 
-income of a movie ?
-
-Rationale:This helps assess if a movie's ratings online matches with 
-its popularity in the theater.
-
 Methodology:Use Proc Means to compute five-number summary of imdb_score, 
 and use Proc Format to bin its values by quartiles, which will be further 
 stored into a new dataset. Use Proc GLM to perform a one-way ANOVA model 
@@ -135,25 +137,6 @@ fail or the R-square value is small, other inferential models should be
 considered to conduct the test.
 ;
 
-proc means min q1 median q3 max data=movie_analytic_file;
-	var imdb_score;
-run;
-
-proc format;
-	value imdb_score_bins
-		low-<5.8="Q1 imdb_score"
-		5.8-<6.6="Q2 imdb_score"
-		6.6-<7.2="Q3 imdb_score"
-		7.2-high="Q4 imdb_score"
-		;
-run;
-
-data new_imdb_score_data;
-	set movie_analytic_file;
-		keep movie_imdb_link movie_title imdb_score gross;
-		format imdb_score imdb_score_bins.;
-run;
- 
 proc glm data=new_imdb_score_data;
 	class imdb_score;
 	model gross=imdb_score;
@@ -165,8 +148,7 @@ run;
 proc univariate normal plot;
 	var res;
 run;
-*
-Conclusion:ANOVA is not the appropriate model for this analysis. 
-Consider other models instead.
-;
+title;
+footnote;
+
 
