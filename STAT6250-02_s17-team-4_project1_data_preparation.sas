@@ -49,10 +49,10 @@ proc format;
 		7.2-high="Q4 imdb_score"
 	;
 	value grossfmt  
-		low - <5333658.00				= "Gross Q1"
+		low - <5333658.00			= "Gross Q1"
 		5333658.00 - <25517500.00	= "Gross Q2"
 		25517500.00 - <62318875.00	= "Gross Q3"
-		62318875.00 - high				= "Gross Q4"
+		62318875.00 - high			= "Gross Q4"
 	;
 run;
 
@@ -164,3 +164,40 @@ run;
 
 *All data manipulation steps above will be used as part of data analysis by LW;
 
+*
+Use PROC MEANS to compute the mean, median, standrard deviation, min, and max
+by genre and output the results to a summary dataset and use PROC SORT
+to extract and sort just the means from the summary. Also use PROC SORT
+to sort the original data by gross. 
+This will be used as part of data analysis by ME.
+;
+proc means data=Movie_analytic_file maxdec = 2 mean median std min max;
+	var gross;
+	class genre;
+	output out=gross_sumstat;
+run;
+proc sort data=gross_sumstat(where=(_STAT_="MEAN")) out=gross_mean_sorted;
+    by descending gross;
+run;
+proc sort data=Movie_analytic_file out=sorted_by_gross;
+	by descending gross;
+run;
+
+*
+Use PROC MEANS to compute q1, median, and q3. The numbers are then used
+to hard code the format statements. Then use PROC FREQ to get a two-way
+table of counts by actor and gross (which has been binned into quartiles)
+and output to a file. Use PROC SORT to sort by count descending only rows
+where the gross was in the 4th quartile.
+This will be used as part of data analysis by ME.
+;
+proc means data=Movie_analytic_file q1 median q3;
+	var gross;
+run; 
+proc freq data=Movie_analytic_file order=freq noprint; 
+	tables actor_1_name * gross / nopercent norow nocol out=grossQ_by_actor;
+	format gross grossfmt.;
+run;
+proc sort data=grossQ_by_actor(where=(gross>=62318875)) out=grossQ_by_actor_sorted;
+    by descending count;
+run;

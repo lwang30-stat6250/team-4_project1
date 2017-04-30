@@ -19,7 +19,7 @@ title2
 'Rationale: Action movies are thought to be the highest grossing movies. Does the data support this?';
 
 footnote1
-'The genre "family" has the highest average gross but it should be noted that the genre only contains 3 movies and the standard deviation is very high';
+'The genre "family" has the highest average gross but it should be noted that the genre only contains 3 movies and the standard deviation is very high.';
 
 footnote2
 'The "action" genre is actually fourth in average gross.';
@@ -35,17 +35,9 @@ Possible Follow-up Steps: Limit the output of PROC MEANS to genres where
 n > 5.
 ;
 
-proc means data=Movie_analytic_file maxdec = 2 mean median std min max;
-	var gross;
-	class genre;
-	output out=gross_sumstat;
-run;
-
-proc sort data=gross_sumstat(where=(_STAT_="MEAN")) out=gross_mean_sorted;
-    by descending gross;
-run;
 proc print noobs data=gross_mean_sorted(obs=4);
     var genre gross;
+	format gross dollar12.0;
 	label gross="mean gross";
 run;
 title;
@@ -56,9 +48,7 @@ title1
 footnote1
 'The top ten highest grossing films are all action films';
 
-proc sort data=Movie_analytic_file out=sorted_by_gross;
-	by descending gross;
-run;
+
 proc print data=sorted_by_gross(obs=20);
 	var genre movie_title gross;
 	format gross dollar12.0;
@@ -93,24 +83,6 @@ then merge the results. It was also be interesting to see the percentage of the
 actors films that were in the fourth quartile.
 ;
 
-proc means data=Movie_analytic_file q1 median q3;
-	var gross;
-run; 
-
-<<<<<<< HEAD
-proc freq data=Movie_analytic_file order=freq noprint; 
-=======
-proc freq data=Movie_analytic_file order=freq; 
->>>>>>> refs/remotes/origin/master
-	tables actor_1_name * gross / nopercent norow nocol out=grossQ_by_actor;
-	format gross grossfmt.;
-run;
-
-* Sort by Q4 frequency (i.e. the number of movies where the gross was 
-in the 4th quartile);
-proc sort data=grossQ_by_actor(where=(gross>=62318875)) out=grossQ_by_actor_sorted;
-    by descending count;
-run;
 proc print noobs data=grossQ_by_actor_sorted(obs=10) label;
 	var actor_1_name gross count;
 	label actor_1_name='Actor 1'
@@ -127,7 +99,7 @@ title1
 title2
 'Rationale: To help movie studios budget future movies.';
 footnote1
-'See chart "Average Budget by Year"';
+'Also see chart "Average Budget by Year"';
 
 *
 Methodology: Use PROC MEANS to get the mean with VAR budget CLASS title_year. 
