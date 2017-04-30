@@ -57,28 +57,45 @@ proc format;
 run;
 
 
-
 * setup environmental parameters;
 %let inputDatasetURL =
 https://github.com/stat6250/team-4_project1/blob/master/movie_metadata_edit.xls?raw=true
 ;
 
 * load raw movie dataset over the wire;
-filename tempfile TEMP;
-proc http
-	method="get"
-	url="&inputDatasetURL."
-	out=tempfile
-	;
-run;
-
-proc import
-	file=tempfile
-	out=movie_data
-	dbms=xls;
-run;
-
-filename tempfile clear;
+%macro loadDataIfNotAlreadyAvailable(dsn,url,filetype);
+	%put &=dsn;
+	%put &=url;
+	%put &filetype;
+	%if
+		%sysfunc(exist(&dsn.)) = 0
+	%then
+		%do;
+			%put Loading dataset &dsn. over the wire now...;
+			filename tempfile TEMP;
+			proc http
+				method="get"
+				url="&url."
+				out=tempfile
+				;
+			run;
+			proc import
+				file=tempfile
+				out=&dsn.
+				dbms=&filetype.;
+			run;
+			filename tempfile clear;
+		%end;
+	%else
+		%do;
+			%put Dataset &dsn. already exist. Please delete and try again.;
+		%end;
+%mend;
+%loadDataIfNotAlreadyAvailable(
+	movie_data,
+	&inputDatasetURL.,
+	xls
+)
 
 
 * check movie dataset for duplicates with respect to its unique key;
@@ -126,12 +143,10 @@ data movie_analytic_file;
 run;
 
 
-
-*data manipulation steps;
+*Data manipulation steps;
 	
 *
 Use data step to store the reformatted "country" variable into a dataset;
-
 data new_country_data;
 	set movie_analytic_file;
 	format country country_bins.;
@@ -140,7 +155,6 @@ run;
 *
 Use proc means to compute the five-number summary for both "budget" and 
 "gross" to bin those two variables based on quartiles;
-
 proc means min q1 median q3 max data=movie_analytic_file;
 	var
 		budget
@@ -152,7 +166,6 @@ run;
 Use proc means to obtain five-number summary of "imdb_score" to bin its 
 values, and then store the reformatted variables into a new analysis-ready
 dataset by a data step;
-
 proc means min q1 median q3 max data=movie_analytic_file;
 	var imdb_score;
 run;
@@ -161,8 +174,8 @@ data new_imdb_score_data;
 		keep movie_imdb_link movie_title imdb_score gross;
 		format imdb_score imdb_score_bins.;
 run;
-
 *All data manipulation steps above will be used as part of data analysis by LW;
+
 
 *
 Use PROC MEANS to compute the mean, median, standrard deviation, min, and max
