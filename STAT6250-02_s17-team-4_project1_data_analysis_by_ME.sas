@@ -97,7 +97,11 @@ proc means data=Movie_analytic_file q1 median q3;
 	var gross;
 run; 
 
+<<<<<<< HEAD
 proc freq data=Movie_analytic_file order=freq noprint; 
+=======
+proc freq data=Movie_analytic_file order=freq; 
+>>>>>>> refs/remotes/origin/master
 	tables actor_1_name * gross / nopercent norow nocol out=grossQ_by_actor;
 	format gross grossfmt.;
 run;
