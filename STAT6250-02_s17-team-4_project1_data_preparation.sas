@@ -20,6 +20,44 @@
 [Unique ID Schema] The column “movie_imdb_link” is a primary key
 ;
 
+
+*environmental setup;
+
+*create output format;
+
+proc format;
+	value $country_bins
+	"USA"="USA"
+	other="Not_USA"
+	;	
+	value budget_bins
+		low-6000000="Q1 budget"
+		6000001-20000000="Q2 budget"
+		20000001-45000000="Q3 budget"
+		45000001-high="Q4 budget"
+	;
+	value gross_bins
+		low-5333658="Q1 gross"
+		5333659-25517500="Q2 gross"
+		25517501-62318875="Q3 gross"
+		62318876-high="Q4 gross"
+	;
+	value imdb_score_bins
+		low-<5.8="Q1 imdb_score"
+		5.8-<6.6="Q2 imdb_score"
+		6.6-<7.2="Q3 imdb_score"
+		7.2-high="Q4 imdb_score"
+	;
+	value grossfmt  
+		low - <5333658.00				= "Gross Q1"
+		5333658.00 - <25517500.00	= "Gross Q2"
+		25517500.00 - <62318875.00	= "Gross Q3"
+		62318875.00 - high				= "Gross Q4"
+	;
+run;
+
+
+
 * setup environmental parameters;
 %let inputDatasetURL =
 https://github.com/stat6250/team-4_project1/blob/master/movie_metadata_edit.xls?raw=true
@@ -86,4 +124,43 @@ data movie_analytic_file;
 	;
 	set movie_data;
 run;
-		
+
+
+
+*data manipulation steps;
+	
+*
+Use data step to store the reformatted "country" variable into a dataset;
+
+data new_country_data;
+	set movie_analytic_file;
+	format country country_bins.;
+run;
+
+*
+Use proc means to compute the five-number summary for both "budget" and 
+"gross" to bin those two variables based on quartiles;
+
+proc means min q1 median q3 max data=movie_analytic_file;
+	var
+		budget
+		gross
+	;
+run;
+
+*
+Use proc means to obtain five-number summary of "imdb_score" to bin its 
+values, and then store the reformatted variables into a new analysis-ready
+dataset by a data step;
+
+proc means min q1 median q3 max data=movie_analytic_file;
+	var imdb_score;
+run;
+data new_imdb_score_data;
+	set movie_analytic_file;
+		keep movie_imdb_link movie_title imdb_score gross;
+		format imdb_score imdb_score_bins.;
+run;
+
+*All data manipulation steps above will be used as part of data analysis by LW;
+
