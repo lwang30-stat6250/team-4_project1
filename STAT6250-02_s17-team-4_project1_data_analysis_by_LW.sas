@@ -115,7 +115,7 @@ footnote1
 ;
 
 footnote2
-'From the ANOVA table, the R-square value is 0.032875, meaning that only 3.3% of the data can be explained by the model.'
+'From the ANOVA table, the R-square value value is 0.032875, meaning that only 3.3% of the variation in the response variable "gross" can be explained by the model.'
 ;
 
 footnote3
