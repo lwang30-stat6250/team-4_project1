@@ -155,19 +155,21 @@ run;
 *
 Use proc means to compute the five-number summary for both "budget" and 
 "gross" to bin those two variables based on quartiles;
-proc means min q1 median q3 max data=movie_analytic_file;
+proc means min q1 median q3 max data=movie_analytic_file noprint;
 	var
 		budget
 		gross
 	;
+	output out=budget_gross_summary;
 run;
 
 *
 Use proc means to obtain five-number summary of "imdb_score" to bin its 
 values, and then store the reformatted variables into a new analysis-ready
 dataset by a data step;
-proc means min q1 median q3 max data=movie_analytic_file;
+proc means min q1 median q3 max data=movie_analytic_file noprint;
 	var imdb_score;
+	output out=imdb_score_summary
 run;
 data new_imdb_score_data;
 	set movie_analytic_file;
@@ -184,7 +186,7 @@ to extract and sort just the means from the summary. Also use PROC SORT
 to sort the original data by gross. 
 This will be used as part of data analysis by ME.
 ;
-proc means data=Movie_analytic_file maxdec = 2 mean median std min max;
+proc means data=Movie_analytic_file maxdec = 2 mean median std min max noprint;
 	var gross;
 	class genre;
 	output out=gross_sumstat;
@@ -204,8 +206,9 @@ and output to a file. Use PROC SORT to sort by count descending only rows
 where the gross was in the 4th quartile.
 This will be used as part of data analysis by ME.
 ;
-proc means data=Movie_analytic_file q1 median q3;
+proc means data=Movie_analytic_file q1 median q3 noprint;
 	var gross;
+	output out=gross_summary
 run; 
 proc freq data=Movie_analytic_file order=freq noprint; 
 	tables actor_1_name * gross / nopercent norow nocol out=grossQ_by_actor;
